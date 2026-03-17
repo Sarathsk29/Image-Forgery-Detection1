@@ -6,6 +6,7 @@ import traceback
 import json
 import os
 import tempfile
+import base64
 
 from detector.sift_detector import detect_forgery, annotate_image
 from detector.ela_detector import detect_ela
@@ -77,6 +78,8 @@ async def detect(file: UploadFile = File(...)):
             if sift_result["is_forged"]:
                 summary = f"Possible document forgery detected! Flags: {', '.join(sift_result.get('document_flags', []))}."
             
+            original_image_base64 = base64.b64encode(image_bytes).decode('utf-8')
+            
             return {
                "is_forged": sift_result["is_forged"],
                "confidence_score": sift_result["confidence"],
@@ -84,6 +87,7 @@ async def detect(file: UploadFile = File(...)):
                "keypoints_matched": sift_result["keypoints_matched"],
                "regions": sift_result["regions"],
                "ela_suspicious": ela_result["ela_suspicious"],
+               "original_image_base64": original_image_base64,
                "annotated_image_base64": annotated_image_base64,
                "ela_image_base64": ela_result["ela_image_base64"],
                "heatmap_base64": heatmap_base64,
@@ -121,6 +125,8 @@ async def detect(file: UploadFile = File(...)):
             else:
                 summary = "No significant copy-move forgery was detected based on keypoint matching."
                 
+            original_image_base64 = base64.b64encode(image_bytes).decode('utf-8')
+                
             return {
                "is_forged": is_forged,
                "confidence_score": confidence_score,
@@ -128,6 +134,7 @@ async def detect(file: UploadFile = File(...)):
                "keypoints_matched": sift_result["keypoints_matched"],
                "regions": sift_result["regions"],
                "ela_suspicious": ela_result["ela_suspicious"],
+               "original_image_base64": original_image_base64,
                "annotated_image_base64": annotated_image_base64,
                "ela_image_base64": ela_result["ela_image_base64"],
                "heatmap_base64": heatmap_base64,

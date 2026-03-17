@@ -16,7 +16,7 @@ const ResultPanel = ({ result }) => {
   const methodUsed = result.method_used || result.method || 'SIFT + ELA';
 
   const originalImage = `data:image/jpeg;base64,${result.original_image_base64 || result.original_image}`;
-  const analyzedImage = `data:image/jpeg;base64,${result.analyzed_image_base64 || result.analyzed_image}`;
+  const analyzedImage = `data:image/jpeg;base64,${result.annotated_image_base64 || result.analyzed_image_base64 || result.analyzed_image}`;
   const elaImage = `data:image/jpeg;base64,${result.ela_image_base64 || result.ela_image}`;
   const heatmapImage = result.heatmap_base64 || result.heatmap ? `data:image/jpeg;base64,${result.heatmap_base64 || result.heatmap}` : analyzedImage;
 
