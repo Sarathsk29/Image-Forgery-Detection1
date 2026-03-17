@@ -151,9 +151,10 @@ def generate_pdf_report(result_data, metadata=None):
     
     elements.append(PageBreak())
 
-    # Helper function for images
     def create_image_element(b64_str, max_width=6.5*inch, max_height=3.5*inch):
         try:
+            if "," in b64_str and b64_str.startswith("data:image"):
+                b64_str = b64_str.split(",", 1)[1]
             img_data = base64.b64decode(b64_str)
             fd_img, tmp_img = tempfile.mkstemp(suffix=".png")
             os.write(fd_img, img_data)

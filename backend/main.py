@@ -145,37 +145,28 @@ async def detect(file: UploadFile = File(...)):
         print(f"[API] Error in detect endpoint: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=str(e))
 
+from pydantic import BaseModel
+from typing import Dict, Any, Optional
+
+class ReportRequest(BaseModel):
+    result_data: Dict[str, Any]
+    filename: Optional[str] = "Unknown File"
+    date: Optional[str] = ""
+    analyst_name: Optional[str] = None
+    case_id: Optional[str] = None
+    notes: Optional[str] = None
+
 @app.post("/report")
-async def report(
-    result_data: str = Form(...),
-    filename: str = Form("Unknown File"),
-    date: str = Form(""),
-    analyst_name: str = Form(None),
-    case_id: str = Form(None),
-    notes: str = Form(None)
-):
-    print(f"[API] Generating report for: {filename}")
+async def report(req: ReportRequest):
+    print(f"[API] Generating report for: {req.filename}")
     try:
-        data_dict = {}
-        try:
-            # 1. Try standard JSON parsing
-            data_dict = json.loads(result_data)
-        except json.JSONDecodeError:
-            # 2. If literal string, try evaluating if it looks like a python dict (sometimes frontend sends raw dict stringified)
-            import ast
-            try:
-                data_dict = ast.literal_eval(result_data)
-            except (ValueError, SyntaxError):
-                pass
-                
-        if not isinstance(data_dict, dict):
-             raise ValueError(f"Invalid result_data format. Expected JSON dictionary string, got: {result_data}")
+        data_dict = req.result_data
         metadata = {
-            "filename": filename,
-            "date": date,
-            "analyst_name": analyst_name,
-            "case_id": case_id,
-            "notes": notes
+            "filename": req.filename or "Unknown File",
+            "date": req.date or "",
+            "analyst_name": req.analyst_name,
+            "case_id": req.case_id,
+            "notes": req.notes
         }
         
         pdf_path = generate_pdf_report(data_dict, metadata)

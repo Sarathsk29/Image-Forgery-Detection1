@@ -18,12 +18,14 @@ export const detectForgery = async (file) => {
 };
 
 export const downloadReport = async (resultData) => {
-  const formData = new FormData();
-  formData.append('result_data', JSON.stringify(resultData));
-
   const response = await fetch(`${BACKEND_URL}/report`, {
     method: 'POST',
-    body: formData,
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      result_data: resultData
+    }),
   });
 
   if (!response.ok) {
